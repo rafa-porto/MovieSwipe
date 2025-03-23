@@ -12,15 +12,13 @@ const Header = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#121826]/90 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/">
-            <a className="flex items-center">
-              <h1 className="text-2xl font-poppins font-bold text-[#FFCC00] mr-2">
-                NOVO
-              </h1>
-              <span className="text-xs text-[#EAEAEA]/60 font-inter mt-1">
-                MOVIE DISCOVERY
-              </span>
-            </a>
+          <Link href="/" className="flex items-center">
+            <h1 className="text-2xl font-poppins font-bold text-[#FFCC00] mr-2">
+              NOVO
+            </h1>
+            <span className="text-xs text-[#EAEAEA]/60 font-inter mt-1">
+              MOVIE DISCOVERY
+            </span>
           </Link>
           
           <div className="flex items-center space-x-4">

@@ -82,7 +82,7 @@ export class MemStorage implements IStorage {
           
           // Verifica se o filme contém pelo menos um dos gêneros selecionados
           return movie.genres.some((genre: string) => 
-            genres.some(g => genre.toLowerCase().includes(g.toLowerCase()))
+            genres.some((g: string) => genre.toLowerCase().includes(g.toLowerCase()))
           );
         });
       }
@@ -93,7 +93,7 @@ export class MemStorage implements IStorage {
           if (!movie.mood) return false;
           
           // Verifica se o humor do filme está na lista de humores selecionados
-          return moods.some(m => 
+          return moods.some((m: string) => 
             movie.mood?.toLowerCase().includes(m.toLowerCase())
           );
         });
@@ -106,7 +106,7 @@ export class MemStorage implements IStorage {
           
           // Verifica se o filme está disponível em pelo menos um dos serviços selecionados
           return movie.streaming_services.some((service: string) => 
-            streamingServices.some(s => service.toLowerCase().includes(s.toLowerCase()))
+            streamingServices.some((s: string) => service.toLowerCase().includes(s.toLowerCase()))
           );
         });
       }
@@ -195,15 +195,17 @@ export class MemStorage implements IStorage {
     );
     
     // Calculate a score for each movie based on user preferences
-    const scoredMovies = unseenMovies.map(movie => {
+    const scoredMovies = unseenMovies.map((movie: Movie) => {
       let score = 0;
       
       // Score based on genres
-      movie.genres.forEach((genre: string) => {
-        if (likedGenres[genre]) {
-          score += likedGenres[genre];
-        }
-      });
+      if (movie.genres && Array.isArray(movie.genres)) {
+        movie.genres.forEach((genre: string) => {
+          if (likedGenres[genre]) {
+            score += likedGenres[genre];
+          }
+        });
+      }
       
       return { movie, score };
     });
