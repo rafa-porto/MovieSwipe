@@ -85,8 +85,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const movie of tmdbMovies) {
           await storage.createMovie({
             ...movie,
-            genres: movie.genres as unknown as Json,
-            streaming_services: movie.streaming_services as unknown as Json
+            genres: movie.genres as unknown as JSON,
+            streaming_services: movie.streaming_services as unknown as JSON
           });
         }
         
@@ -123,8 +123,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (tmdbMovie) {
           await storage.createMovie({
             ...tmdbMovie,
-            genres: tmdbMovie.genres as unknown as Json,
-            streaming_services: tmdbMovie.streaming_services as unknown as Json
+            genres: tmdbMovie.genres as unknown as JSON,
+            streaming_services: tmdbMovie.streaming_services as unknown as JSON
           });
           movie = tmdbMovie;
         } else {
