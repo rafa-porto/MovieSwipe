@@ -83,7 +83,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Save to storage
         for (const movie of tmdbMovies) {
-          await storage.createMovie(movie);
+          await storage.createMovie({
+            ...movie,
+            genres: movie.genres as unknown as Json,
+            streaming_services: movie.streaming_services as unknown as Json
+          });
         }
         
         // Retrieve with filters
@@ -114,10 +118,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If not in storage, fetch from TMDB and save
       if (!movie) {
-        movie = await getMovieDetails(movieId);
+        const tmdbMovie = await getMovieDetails(movieId);
         
-        if (movie) {
-          await storage.createMovie(movie);
+        if (tmdbMovie) {
+          await storage.createMovie({
+            ...tmdbMovie,
+            genres: tmdbMovie.genres as unknown as Json,
+            streaming_services: tmdbMovie.streaming_services as unknown as Json
+          });
+          movie = tmdbMovie;
         } else {
           return res.status(404).json({ message: "Movie not found" });
         }
@@ -175,13 +184,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Update genre counts
           const likedGenres = { ...(userPrefs.liked_genres as Record<string, number>) };
-          for (const genre of movie.genres) {
+          const movieGenres = movie.genres as string[];
+          for (const genre of movieGenres) {
             likedGenres[genre] = (likedGenres[genre] || 0) + 1;
           }
           
           // Update streaming service counts
           const streamingServices = { ...(userPrefs.streaming_services as Record<string, number>) };
-          for (const service of movie.streaming_services) {
+          const movieStreamingServices = movie.streaming_services as string[];
+          for (const service of movieStreamingServices) {
             streamingServices[service] = (streamingServices[service] || 0) + 1;
           }
           

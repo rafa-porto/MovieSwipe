@@ -1,9 +1,18 @@
 import fetch from 'node-fetch';
 import { Movie } from '@shared/schema';
+import dotenv from 'dotenv';
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY || '';
+// Load environment variables from .env file
+dotenv.config();
+
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+
+// Check for API key at startup
+if (!TMDB_API_KEY) {
+  console.warn('Warning: TMDB_API_KEY not found in .env file. API calls will fail.');
+}
 
 // Map TMDB genres to our app genres
 const genreMap: Record<number, string> = {
@@ -145,7 +154,7 @@ function transformMovie(movie: any, genreMap: Record<number, string>): Movie {
   
   // Randomly assign streaming services
   const numServices = Math.floor(Math.random() * 2) + 1; // 1 to 2 services
-  const assignedServices = [];
+  const assignedServices: string[] = [];
   
   for (let i = 0; i < numServices; i++) {
     const serviceIndex = Math.floor(Math.random() * streamingServices.length);
