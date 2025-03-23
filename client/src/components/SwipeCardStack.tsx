@@ -9,9 +9,10 @@ import type { Movie, FilterOptions } from "@/types";
 
 interface SwipeCardStackProps {
   filters: Partial<FilterOptions>;
+  onMovieInteracted?: () => void;
 }
 
-const SwipeCardStack = ({ filters }: SwipeCardStackProps) => {
+const SwipeCardStack = ({ filters, onMovieInteracted }: SwipeCardStackProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<"left" | "right" | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
