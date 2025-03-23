@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import MovieCard from "./MovieCard";
+import MovieDetailModal from "./MovieDetailModal";
 import { cardAnimation, swipeLeftAnimation, swipeRightAnimation } from "@/lib/motion";
 import { fetchMovies, likeMovie, dislikeMovie } from "@/lib/tmdb";
 import type { Movie, FilterOptions } from "@/types";
@@ -16,6 +17,7 @@ const SwipeCardStack = ({ filters }: SwipeCardStackProps) => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const { toast } = useToast();
 
   // Load initial movies
@@ -122,6 +124,16 @@ const SwipeCardStack = ({ filters }: SwipeCardStackProps) => {
     }
   };
   
+  const handleShowDetails = () => {
+    if (currentIndex < movies.length) {
+      setSelectedMovie(movies[currentIndex]);
+    }
+  };
+  
+  const handleCloseDetails = () => {
+    setSelectedMovie(null);
+  };
+  
   const currentMovie = movies[currentIndex];
   const hasMovies = movies.length > 0 && currentIndex < movies.length;
   
@@ -149,6 +161,7 @@ const SwipeCardStack = ({ filters }: SwipeCardStackProps) => {
               movie={currentMovie}
               onLike={handleLike}
               onDislike={handleDislike}
+              onInfo={handleShowDetails}
             />
           </motion.div>
         )}
@@ -177,6 +190,14 @@ const SwipeCardStack = ({ filters }: SwipeCardStackProps) => {
             Refresh Movies
           </button>
         </div>
+      )}
+      
+      {/* Movie Detail Modal */}
+      {selectedMovie && (
+        <MovieDetailModal
+          movie={selectedMovie}
+          onClose={handleCloseDetails}
+        />
       )}
     </div>
   );
