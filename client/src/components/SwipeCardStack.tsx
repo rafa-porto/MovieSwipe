@@ -29,6 +29,19 @@ const SwipeCardStack = ({ filters }: SwipeCardStackProps) => {
     setCurrentIndex(0);
     setPage(1);
     loadMovies(true);
+    
+    // Show feedback about filter application
+    if (
+      (filters.genres && filters.genres.length > 0) || 
+      (filters.moods && filters.moods.length > 0) || 
+      (filters.streamingServices && filters.streamingServices.length > 0)
+    ) {
+      toast({
+        title: "Filtros aplicados",
+        description: "Mostrando filmes com os filtros selecionados",
+        variant: "default"
+      });
+    }
   }, [filters]);
   
   const loadMovies = async (resetExisting = false) => {

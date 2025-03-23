@@ -101,8 +101,8 @@ const Filters = ({
                       key={genre}
                       className={`px-3 py-1 text-xs rounded-full ${
                         selectedGenres.includes(genre)
-                          ? "bg-[#675AFE] text-[#EAEAEA]"
-                          : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]"
+                          ? "bg-[#675AFE] text-[#EAEAEA] backdrop-blur-sm"
+                          : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]/40 backdrop-blur-sm"
                       } transition-colors`}
                       onClick={() => toggleFilter(selectedGenres, genre, onGenreChange)}
                     >

@@ -76,23 +76,39 @@ export class MemStorage implements IStorage {
       const { genres, moods, streamingServices } = options.filters;
       
       if (genres && genres.length > 0) {
-        movies = movies.filter(movie => 
-          movie.genres.some((genre: string) => genres.includes(genre))
-        );
+        movies = movies.filter(movie => {
+          // Garante que o filme tem gêneros definidos
+          if (!movie.genres || !Array.isArray(movie.genres)) return false;
+          
+          // Verifica se o filme contém pelo menos um dos gêneros selecionados
+          return movie.genres.some((genre: string) => 
+            genres.some(g => genre.toLowerCase().includes(g.toLowerCase()))
+          );
+        });
       }
       
       if (moods && moods.length > 0) {
-        movies = movies.filter(movie => 
-          moods.includes(movie.mood)
-        );
+        movies = movies.filter(movie => {
+          // Caso o filme não tenha humor definido
+          if (!movie.mood) return false;
+          
+          // Verifica se o humor do filme está na lista de humores selecionados
+          return moods.some(m => 
+            movie.mood?.toLowerCase().includes(m.toLowerCase())
+          );
+        });
       }
       
       if (streamingServices && streamingServices.length > 0) {
-        movies = movies.filter(movie => 
-          movie.streaming_services.some((service: string) => 
-            streamingServices.includes(service)
-          )
-        );
+        movies = movies.filter(movie => {
+          // Garante que o filme tem serviços de streaming definidos
+          if (!movie.streaming_services || !Array.isArray(movie.streaming_services)) return false;
+          
+          // Verifica se o filme está disponível em pelo menos um dos serviços selecionados
+          return movie.streaming_services.some((service: string) => 
+            streamingServices.some(s => service.toLowerCase().includes(s.toLowerCase()))
+          );
+        });
       }
     }
     
