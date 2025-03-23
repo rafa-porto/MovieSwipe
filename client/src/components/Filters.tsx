@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Play, Video, Film, Tv } from "lucide-react";
 import { filterAnimation } from "@/lib/motion";
 import { type MovieGenre, type MovieMood, type StreamingService } from "@/types";
 
@@ -81,8 +81,8 @@ const Filters = ({
                       key={mood}
                       className={`px-3 py-1 text-xs rounded-full ${
                         selectedMoods.includes(mood)
-                          ? "bg-[#675AFE] text-[#EAEAEA]"
-                          : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]"
+                          ? "bg-[#675AFE] text-[#EAEAEA] backdrop-blur-sm"
+                          : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]/40 backdrop-blur-sm"
                       } transition-colors`}
                       onClick={() => toggleFilter(selectedMoods, mood, onMoodChange)}
                     >
@@ -117,23 +117,32 @@ const Filters = ({
                 <h3 className="text-sm font-poppins font-medium mb-2">Streaming On</h3>
                 <div className="flex flex-wrap gap-2">
                   {streamingServices.map(service => {
-                    let icon = null;
-                    if (service === 'Netflix') icon = "fa-netflix";
-                    else if (service === 'Prime') icon = "fa-amazon";
-                    else if (service === 'Disney+') icon = "fa-play";
-                    else if (service === 'Hulu') icon = "fa-tv";
+                    const getIcon = () => {
+                      switch (service) {
+                        case 'Netflix':
+                          return <Play className="w-3 h-3 text-red-600" />;
+                        case 'Prime':
+                          return <Video className="w-3 h-3 text-blue-400" />;
+                        case 'Disney+':
+                          return <Film className="w-3 h-3 text-blue-500" />;
+                        case 'Hulu':
+                          return <Tv className="w-3 h-3 text-green-400" />;
+                        default:
+                          return null;
+                      }
+                    };
                   
                     return (
                       <button
                         key={service}
                         className={`px-3 py-1 text-xs rounded-full ${
                           selectedServices.includes(service)
-                            ? "bg-[#675AFE] text-[#EAEAEA]"
-                            : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]"
+                            ? "bg-[#675AFE] text-[#EAEAEA] backdrop-blur-sm"
+                            : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]/40 backdrop-blur-sm"
                         } transition-colors flex items-center gap-1`}
                         onClick={() => toggleFilter(selectedServices, service, onServiceChange)}
                       >
-                        <i className={`fab ${icon}`}></i>
+                        {getIcon()}
                         <span>{service}</span>
                       </button>
                     );
