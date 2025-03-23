@@ -90,6 +90,10 @@ const SwipeCardStack = ({ filters, onMovieInteracted }: SwipeCardStackProps) => 
       setTimeout(() => {
         setDirection(null);
         setCurrentIndex(prev => prev + 1);
+        // Call the callback if provided
+        if (onMovieInteracted) {
+          onMovieInteracted();
+        }
       }, 300);
     } catch (error) {
       console.error("Error liking movie:", error);
@@ -113,6 +117,10 @@ const SwipeCardStack = ({ filters, onMovieInteracted }: SwipeCardStackProps) => 
       setTimeout(() => {
         setDirection(null);
         setCurrentIndex(prev => prev + 1);
+        // Call the callback if provided
+        if (onMovieInteracted) {
+          onMovieInteracted();
+        }
       }, 300);
     } catch (error) {
       console.error("Error disliking movie:", error);
