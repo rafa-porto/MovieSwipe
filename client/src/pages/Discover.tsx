@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Filters from "@/components/Filters";
 import SwipeCardStack from "@/components/SwipeCardStack";
+import RecommendationSection from "@/components/RecommendationSection";
 import { type MovieGenre, type MovieMood, type StreamingService } from "@/types";
 import { fetchUserStats } from "@/lib/tmdb";
 
@@ -14,6 +15,7 @@ const Discover = () => {
     percentage: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showRecommendations, setShowRecommendations] = useState(false);
   
   // Fetch user stats on component mount
   useEffect(() => {
@@ -21,6 +23,13 @@ const Discover = () => {
       setIsLoading(true);
       try {
         const userStats = await fetchUserStats();
+        
+        // Check if user has interacted with enough movies to show recommendations
+        const hasEnoughInteractions = 
+          (userStats.moviesViewed && userStats.moviesViewed >= 3) || 
+          (userStats.favorites && userStats.favorites >= 2);
+        
+        setShowRecommendations(hasEnoughInteractions);
         
         // Assuming stats API returns moviesViewed
         setStats({
@@ -36,6 +45,7 @@ const Discover = () => {
           totalMovies: 50,
           percentage: 0
         });
+        setShowRecommendations(false);
       } finally {
         setIsLoading(false);
       }
@@ -54,6 +64,12 @@ const Discover = () => {
   const handleMovieViewed = () => {
     setStats(prev => {
       const newMoviesViewed = prev.moviesViewed + 1;
+      
+      // Show recommendations after 3 interactions
+      if (newMoviesViewed >= 3 && !showRecommendations) {
+        setShowRecommendations(true);
+      }
+      
       return {
         moviesViewed: newMoviesViewed,
         totalMovies: prev.totalMovies,
@@ -83,9 +99,10 @@ const Discover = () => {
         onMovieInteracted={handleMovieViewed}
       />
       
+      {/* Daily Progress Indicator */}
       <div className="mt-8 text-center">
         <p className="text-sm text-[#EAEAEA]/60 font-inter">
-          Today's discovery: <span className="text-[#EAEAEA] font-medium">{stats.moviesViewed} of {stats.totalMovies}</span> movies
+          Descobertas hoje: <span className="text-[#EAEAEA] font-medium">{stats.moviesViewed} de {stats.totalMovies}</span> filmes
         </p>
         <div className="h-1 w-full max-w-xs bg-[#1E293B]/50 rounded-full mx-auto mt-2">
           <div 
@@ -94,6 +111,18 @@ const Discover = () => {
           ></div>
         </div>
       </div>
+      
+      {/* AI-Powered Recommendations Section */}
+      {showRecommendations && (
+        <div className="mt-12 mb-8">
+          <RecommendationSection 
+            title="IA Recomenda Para Você" 
+            subtitle="Baseado nas suas interações recentes e preferências"
+            limit={6}
+            onMovieLiked={handleMovieViewed}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -187,6 +187,7 @@ export class MemStorage implements IStorage {
     const likedGenres = preferences.liked_genres as Record<string, number>;
     const likedMovieIds = preferences.liked_movies as number[];
     const dislikedMovieIds = preferences.disliked_movies as number[];
+    const preferredServices = preferences.streaming_services as Record<string, number>;
     
     // Get all movies that user hasn't interacted with
     const allMovies = Array.from(this.movies.values());
@@ -194,17 +195,106 @@ export class MemStorage implements IStorage {
       movie => !likedMovieIds.includes(movie.id) && !dislikedMovieIds.includes(movie.id)
     );
     
-    // Calculate a score for each movie based on user preferences
+    // If no movies to recommend, return empty array
+    if (unseenMovies.length === 0) return [];
+    
+    // Get user's liked movies to use as content-based reference
+    const likedMovies: Movie[] = [];
+    for (const id of likedMovieIds) {
+      const movie = await this.getMovie(id);
+      if (movie) likedMovies.push(movie);
+    }
+    
+    // AI-powered recommendation algorithm using content-based filtering
     const scoredMovies = unseenMovies.map((movie: Movie) => {
+      // Base score starts at 0
       let score = 0;
       
-      // Score based on genres
+      // 1. CONTENT-BASED FILTERING: Similarity to liked content
+      
+      // Genre similarity score (weighted most heavily)
       if (movie.genres && Array.isArray(movie.genres)) {
         movie.genres.forEach((genre: string) => {
+          // Give higher weight to genres user has liked more frequently
           if (likedGenres[genre]) {
-            score += likedGenres[genre];
+            score += likedGenres[genre] * 2; // Weight genre matches heavily
           }
         });
+      }
+      
+      // Service preference score
+      if (movie.streaming_services && Array.isArray(movie.streaming_services)) {
+        movie.streaming_services.forEach((service: string) => {
+          if (preferredServices[service]) {
+            score += preferredServices[service]; // Add points for preferred services
+          }
+        });
+      }
+      
+      // 2. COLLABORATIVE FILTERING SIMULATION: Item-to-item similarity
+      if (likedMovies.length > 0) {
+        // Calculate similarity to each liked movie
+        const similarityScores = likedMovies.map(likedMovie => {
+          let similarity = 0;
+          
+          // Genre overlap
+          if (likedMovie.genres && Array.isArray(likedMovie.genres) && 
+              movie.genres && Array.isArray(movie.genres)) {
+            const overlapCount = likedMovie.genres.filter(g => 
+              movie.genres.includes(g)
+            ).length;
+            
+            if (likedMovie.genres.length > 0) {
+              similarity += (overlapCount / likedMovie.genres.length) * 5;
+            }
+          }
+          
+          // Rating similarity (if ratings are close)
+          if (typeof likedMovie.vote_average === 'number' && 
+              typeof movie.vote_average === 'number') {
+            const ratingDiff = Math.abs(likedMovie.vote_average - movie.vote_average);
+            if (ratingDiff < 1) similarity += 3;
+            else if (ratingDiff < 2) similarity += 2;
+            else if (ratingDiff < 3) similarity += 1;
+          }
+          
+          // Release date recency bonus
+          if (likedMovie.release_date && movie.release_date) {
+            const likedYear = new Date(likedMovie.release_date).getFullYear();
+            const movieYear = new Date(movie.release_date).getFullYear();
+            if (Math.abs(likedYear - movieYear) < 5) {
+              similarity += 1;
+            }
+          }
+          
+          return similarity;
+        });
+        
+        // Use the average similarity score from all liked movies
+        if (similarityScores.length > 0) {
+          const avgSimilarity = similarityScores.reduce((sum, score) => sum + score, 0) / 
+                               similarityScores.length;
+          score += avgSimilarity;
+        }
+      }
+      
+      // 3. RECENCY BOOST: Favor newer movies slightly
+      if (movie.release_date) {
+        const releaseYear = new Date(movie.release_date).getFullYear();
+        const currentYear = new Date().getFullYear();
+        if (releaseYear >= currentYear - 2) {
+          score += 1; // Small boost for very recent movies
+        }
+      }
+      
+      // 4. RATING QUALITY FACTOR: Higher rated movies get a small boost
+      if (typeof movie.vote_average === 'number' && movie.vote_average > 7) {
+        score += (movie.vote_average - 7); // Up to 3 point boost for top-rated films
+      }
+      
+      // 5. MOOD MATCHING: If movie mood matches previous liked moods
+      if (movie.mood && movie.mood in likedGenres) {
+        score += 2;
       }
       
       return { movie, score };
@@ -212,7 +302,17 @@ export class MemStorage implements IStorage {
     
     // Sort by score and take the top ones
     scoredMovies.sort((a, b) => b.score - a.score);
-    return scoredMovies.slice(0, limit).map(scored => scored.movie);
+    
+    // Add a small random factor to the top 20 movies to avoid always showing the same recommendations
+    const topMovies = scoredMovies.slice(0, Math.min(20, scoredMovies.length));
+    topMovies.forEach(item => {
+      item.score += Math.random() * 2; // Add up to 2 points of randomness
+    });
+    
+    // Re-sort after adding randomness
+    topMovies.sort((a, b) => b.score - a.score);
+    
+    return topMovies.slice(0, limit).map(scored => scored.movie);
   }
 }
 
