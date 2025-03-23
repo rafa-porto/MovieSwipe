@@ -6,7 +6,7 @@ import AIExplanation from "@/components/AIExplanation";
 const Profile = () => {
   return (
     <div className="container mx-auto px-4 py-4">
-      <h1 className="text-2xl font-poppins font-bold mb-6">Seu Perfil</h1>
+      <h1 className="text-2xl font-poppins font-bold mb-6">Your Profile</h1>
       
       <motion.div 
         className="flex flex-col items-center mb-8"

@@ -123,7 +123,7 @@ const MovieCard = ({ movie, onLike, onDislike, onInfo }: MovieCardProps) => {
               <span>{movie.vote_average.toFixed(1)}</span>
             </span>
             {movie.genres[0] && (
-              <span className="bg-[#675AFE]/90 text-[#EAEAEA] text-xs px-2 py-0.5 rounded font-medium backdrop-blur-sm">
+              <span className="bg-[#675AFE]/50 text-[#EAEAEA] text-xs px-2 py-0.5 rounded font-medium backdrop-blur-sm">
                 {movie.genres[0]}
               </span>
             )}

@@ -6,12 +6,11 @@ const AIExplanation = () => {
     <div className="w-full bg-[#1E293B]/50 rounded-lg p-5 my-6">
       <div className="flex items-center gap-3 mb-4">
         <Brain className="h-6 w-6 text-[#675AFE]" />
-        <h2 className="font-poppins font-bold text-lg text-[#EAEAEA]">Como Nossa IA Funciona</h2>
+        <h2 className="font-poppins font-bold text-lg text-[#EAEAEA]">How our AI works</h2>
       </div>
       
       <p className="text-[#EAEAEA]/80 text-sm mb-6">
-        Nossa tecnologia de recomendação utiliza múltiplas técnicas de inteligência artificial para 
-        sugerir filmes que você provavelmente irá gostar.
+        Our recommendation technology uses multiple AI techniques to suggest movies you'll likely enjoy.
       </p>
       
       <div className="space-y-5">
@@ -25,10 +24,10 @@ const AIExplanation = () => {
             <Film className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-medium text-[#EAEAEA] text-sm">Filtragem Baseada em Conteúdo</h3>
+            <h3 className="font-medium text-[#EAEAEA] text-sm">Content-Based Filtering</h3>
             <p className="text-[#EAEAEA]/70 text-xs">
-              Analisamos os gêneros, diretores, atores e outros atributos dos filmes que você gostou 
-              para encontrar padrões em suas preferências.
+              We analyze the genres, directors, actors, and other attributes of the movies you like 
+              to find patterns in your preferences.
             </p>
           </div>
         </motion.div>
@@ -43,10 +42,10 @@ const AIExplanation = () => {
             <Heart className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-medium text-[#EAEAEA] text-sm">Filtragem Colaborativa</h3>
+            <h3 className="font-medium text-[#EAEAEA] text-sm">Collaborative Filtering</h3>
             <p className="text-[#EAEAEA]/70 text-xs">
-              Identificamos padrões entre filmes similares e como usuários com gostos parecidos 
-              avaliaram esses filmes para criar recomendações personalizadas.
+              We identify patterns between similar movies and how users with similar tastes 
+              rated those movies to create personalized recommendations.
             </p>
           </div>
         </motion.div>
@@ -61,10 +60,10 @@ const AIExplanation = () => {
             <BarChart className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-medium text-[#EAEAEA] text-sm">Aprendizado Contínuo</h3>
+            <h3 className="font-medium text-[#EAEAEA] text-sm">Continuous Learning</h3>
             <p className="text-[#EAEAEA]/70 text-xs">
-              Nosso sistema melhora quanto mais você o usa. Cada interação ajuda a refinar 
-              suas recomendações e torná-las mais precisas com o tempo.
+              Our system improves with each interaction. Each interaction helps refine 
+              your recommendations and make them more accurate over time.
             </p>
           </div>
         </motion.div>
@@ -79,10 +78,10 @@ const AIExplanation = () => {
             <Zap className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-medium text-[#EAEAEA] text-sm">Fator Surpresa</h3>
+            <h3 className="font-medium text-[#EAEAEA] text-sm">Surprise Factor</h3>
             <p className="text-[#EAEAEA]/70 text-xs">
-              Adicionamos um elemento de aleatoriedade controlada para que você possa descobrir novos 
-              filmes que talvez não encontrasse de outra forma.
+              We add a controlled element of surprise to allow you to discover new movies 
+              that you might not otherwise find.
             </p>
           </div>
         </motion.div>
@@ -97,10 +96,10 @@ const AIExplanation = () => {
             <Lock className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-medium text-[#EAEAEA] text-sm">Privacidade Preservada</h3>
+            <h3 className="font-medium text-[#EAEAEA] text-sm">Privacy Preserved</h3>
             <p className="text-[#EAEAEA]/70 text-xs">
-              Suas preferências são processadas em nosso sistema de forma segura, e nunca compartilhamos 
-              seus dados de uso com terceiros.
+              Your preferences are processed in our system securely, and we never share your usage data 
+              with third parties.
             </p>
           </div>
         </motion.div>
