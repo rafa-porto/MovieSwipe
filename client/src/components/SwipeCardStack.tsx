@@ -40,8 +40,8 @@ const SwipeCardStack = ({ filters, onMovieInteracted }: SwipeCardStackProps) => 
       (filters.streamingServices && filters.streamingServices.length > 0)
     ) {
       toast({
-        title: "Filtros aplicados",
-        description: "Mostrando filmes com os filtros selecionados",
+        title: "Filters applied",
+        description: "Showing movies with the selected filters",
         variant: "default"
       });
     }

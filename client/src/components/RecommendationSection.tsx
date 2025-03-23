@@ -14,8 +14,8 @@ interface RecommendationSectionProps {
 }
 
 const RecommendationSection = ({
-  title = "IA Recomendar Para Você",
-  subtitle = "Baseado no seu histórico de swipes",
+  title = "AI Recommends For You",
+  subtitle = "Based on your swipe history",
   limit = 6,
   onMovieLiked
 }: RecommendationSectionProps) => {
@@ -34,8 +34,8 @@ const RecommendationSection = ({
       } catch (error) {
         console.error('Error fetching recommendations:', error);
         toast({
-          title: 'Erro',
-          description: 'Não foi possível carregar as recomendações',
+          title: 'Error',
+          description: 'Unable to load recommendations',
           variant: 'destructive',
         });
       } finally {
@@ -55,8 +55,8 @@ const RecommendationSection = ({
       setLikedMovieIds(prev => [...prev, movieId]);
       
       toast({
-        title: 'Filme adicionado',
-        description: 'Este filme foi adicionado aos seus favoritos',
+        title: 'Movie added',
+        description: 'This movie has been added to your favorites',
         variant: 'default',
       });
       
@@ -66,8 +66,8 @@ const RecommendationSection = ({
     } catch (error) {
       console.error('Error liking movie:', error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível adicionar aos favoritos',
+        title: 'Error',
+        description: 'Unable to add to favorites',
         variant: 'destructive',
       });
     } finally {
@@ -79,7 +79,7 @@ const RecommendationSection = ({
     return (
       <div className="w-full py-12 flex flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#675AFE] animate-spin mb-4" />
-        <p className="text-[#EAEAEA]/70">Carregando recomendações</p>
+        <p className="text-[#EAEAEA]/70">Loading recommendations</p>
       </div>
     );
   }
@@ -88,13 +88,13 @@ const RecommendationSection = ({
     return (
       <div className="w-full py-8 px-4 rounded-xl bg-[#1E293B]/50 text-center my-6">
         <h3 className="font-poppins font-semibold text-lg mb-2">
-          Recomendações Indisponíveis
+          Recommendations Unavailable
         </h3>
         <p className="text-[#EAEAEA]/70 text-sm mb-2">
-          Ainda não temos recomendações personalizadas para você.
+          We don't have personalized recommendations for you yet.
         </p>
         <p className="text-[#EAEAEA]/70 text-sm">
-          Continue explorando e avalie mais filmes para receber recomendações.
+          Continue exploring and rate more movies to receive recommendations.
         </p>
       </div>
     );

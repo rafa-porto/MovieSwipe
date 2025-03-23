@@ -33,7 +33,7 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
       try {
         // Fazer chamada real à API para obter detalhes completos
         const response = await fetch(`/api/movies/${movie.id}/details`);
-        if (!response.ok) throw new Error("Falha ao buscar detalhes do filme");
+        if (!response.ok) throw new Error("Failed to fetch movie details");
 
         const movieData = await response.json();
         console.log("Detalhes do filme recebidos:", movieData);
@@ -44,12 +44,12 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           // Manter os campos existentes se a API não retornar esses dados
           cast: movieData.cast || [
             {
-              name: "Informação não disponível",
+              name: "Information not available",
               character: "",
               profile_path: null,
             },
           ],
-          director: movieData.director || "Informação não disponível",
+          director: movieData.director || "Information not available",
           trailer_url: movieData.trailer_url || "",
           streaming_services:
             movieData.streaming_services || movie.streaming_services || [],
@@ -57,18 +57,18 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           runtime: movieData.runtime || movie.runtime || 120,
         });
       } catch (error) {
-        console.error("Erro ao buscar detalhes do filme:", error);
+        console.error("Error fetching movie details:", error);
         // Fallback para os dados básicos do filme
         setDetails({
           ...movie,
           cast: [
             {
-              name: "Informação não disponível",
+              name: "Information not available",
               character: "",
               profile_path: null,
             },
           ],
-          director: "Informação não disponível",
+          director: "Information not available",
           trailer_url: "",
           streaming_services: movie.streaming_services || [],
           genres: movie.genres || [],
@@ -87,7 +87,7 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#121826]/80 backdrop-blur-md">
         <div className="p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#675AFE] border-r-2 mx-auto mb-4"></div>
-          <p className="text-[#EAEAEA]">Carregando detalhes do filme...</p>
+          <p className="text-[#EAEAEA]">Loading movie details...</p>
         </div>
       </div>
     );
@@ -176,7 +176,7 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           >
             <div className="flex items-center justify-center">
               <Film className="w-4 h-4 mr-2" />
-              Visão Geral
+              Overview
             </div>
           </button>
           <button
@@ -189,7 +189,7 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           >
             <div className="flex items-center justify-center">
               <Users className="w-4 h-4 mr-2" />
-              Elenco
+              Cast
             </div>
           </button>
           <button
@@ -212,19 +212,19 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           {activeTab === "overview" && (
             <div>
               <h3 className="text-lg font-poppins font-semibold text-[#EAEAEA] mb-2">
-                Sinopse
+                Synopsis
               </h3>
               <p className="text-[#EAEAEA]/80 mb-6 leading-relaxed">
                 {details.overview}
               </p>
 
               <h3 className="text-lg font-poppins font-semibold text-[#EAEAEA] mb-2">
-                Direção
+                Direction
               </h3>
               <p className="text-[#EAEAEA]/80 mb-6">{details.director}</p>
 
               <h3 className="text-lg font-poppins font-semibold text-[#EAEAEA] mb-2">
-                Disponível em
+                Available on
               </h3>
               <div className="flex flex-wrap gap-3 mb-6">
                 {details.streaming_services.map((service, index) => (
@@ -242,7 +242,7 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           {activeTab === "cast" && (
             <div>
               <h3 className="text-lg font-poppins font-semibold text-[#EAEAEA] mb-4">
-                Elenco Principal
+                Main Cast
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {details.cast?.map((actor, index) => (
@@ -276,7 +276,7 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           {activeTab === "trailer" && (
             <div>
               <h3 className="text-lg font-poppins font-semibold text-[#EAEAEA] mb-4">
-                Trailer Oficial
+                Official Trailer
               </h3>
               <div className="relative pb-[56.25%] h-0 rounded-lg overflow-hidden bg-[#121826]">
                 {details.trailer_url ? (
@@ -293,11 +293,10 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                     <div className="text-center p-4">
                       <Video className="w-16 h-16 mx-auto mb-4 text-[#675AFE]" />
                       <p className="text-[#EAEAEA]/80">
-                        O trailer não está disponível no momento.
+                        The trailer is not available at the moment.
                         <br />
                         <span className="text-sm text-[#EAEAEA]/60">
-                          Tente novamente mais tarde ou acesse o site oficial do
-                          filme.
+                          Try again later or visit the official movie site.
                         </span>
                       </p>
                     </div>
@@ -314,16 +313,16 @@ const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             className="px-4 py-2 bg-[#121826]/70 backdrop-blur-sm text-[#EAEAEA] rounded-lg hover:bg-[#121826] transition-colors"
             onClick={onClose}
           >
-            Fechar
+            Close
           </button>
           <button
             className="px-4 py-2 bg-[#675AFE] text-[#EAEAEA] rounded-lg hover:bg-[#675AFE]/80 transition-colors"
             onClick={() => {
-              // Adicionar a favoritos ou outra ação
+              // Add to favorites or other action
               onClose();
             }}
           >
-            Adicionar aos Favoritos
+            Add to Favorites
           </button>
         </div>
       </div>
