@@ -18,8 +18,8 @@ const Discover = () => {
   // Fetch user stats on component mount
   useEffect(() => {
     const loadStats = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const userStats = await fetchUserStats();
         
         // Assuming stats API returns moviesViewed
@@ -29,7 +29,13 @@ const Discover = () => {
           percentage: Math.min(Math.round((userStats.moviesViewed || 0) / 50 * 100), 100)
         });
       } catch (error) {
-        console.error("Error fetching user stats:", error);
+        console.error("Failed to fetch stats, using default values:", error);
+        // Use default values if stats can't be fetched
+        setStats({
+          moviesViewed: 0,
+          totalMovies: 50,
+          percentage: 0
+        });
       } finally {
         setIsLoading(false);
       }

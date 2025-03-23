@@ -7,6 +7,53 @@ import { insertUserActivitySchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const router = express.Router();
+  
+  // Initialize a default user if none exists (for demo purposes)
+  router.get("/init", async (req: Request, res: Response) => {
+    try {
+      // Check if user 1 exists
+      const userId = 1;
+      const existingUser = await storage.getUser(userId);
+      
+      if (!existingUser) {
+        // Create default user
+        await storage.createUser({
+          id: userId,
+          username: "demo_user",
+          email: "demo@example.com",
+          password_hash: "demo_password",
+          created_at: new Date(),
+          updated_at: new Date()
+        });
+      }
+      
+      // Check if user preferences exist
+      const existingPrefs = await storage.getUserPreferences(userId);
+      
+      if (!existingPrefs) {
+        // Create default user preferences
+        await storage.createUserPreferences({
+          id: 0, // Will be set by storage
+          user_id: userId,
+          liked_genres: {},
+          liked_movies: [],
+          disliked_movies: [],
+          streaming_services: {}
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "Default user initialized" 
+      });
+    } catch (error: any) {
+      console.error("Error initializing default user:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
+  });
 
   // Get movies with filtering
   router.get("/movies", async (req: Request, res: Response) => {
