@@ -19,8 +19,9 @@ function Router() {
     const initializeApp = async () => {
       try {
         console.log("Initializing app...");
-        const response = await apiRequest('/api/init');
-        console.log("App initialized:", response);
+        const response = await apiRequest('GET', '/api/init');
+        const data = await response.json();
+        console.log("App initialized:", data);
       } catch (error) {
         console.error("Error initializing app:", error);
       }
