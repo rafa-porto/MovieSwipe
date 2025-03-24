@@ -63,11 +63,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   router.get("/movies", async (req: Request, res: Response) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
+      // Aumentar limite para garantir que tenhamos filmes suficientes após filtragem
       const limit = parseInt(req.query.limit as string) || 10;
       const offset = (page - 1) * limit;
+      const userId = 1; // Usando usuário padrão para demo
+
+      // Obter preferências do usuário para verificar filmes avaliados
+      const userPrefs = await storage.getUserPreferences(userId);
+      let likedMovies: number[] = [];
+      let dislikedMovies: number[] = [];
+
+      if (userPrefs) {
+        likedMovies = (userPrefs.liked_movies as number[]) || [];
+        dislikedMovies = (userPrefs.disliked_movies as number[]) || [];
+      }
+
+      // Lista de todos os IDs de filmes já avaliados
+      const evaluatedMovieIds = [...likedMovies, ...dislikedMovies];
 
       // Parse filter parameters
-      const filters: any = {};
+      const filters: any = {
+        excludeIds: evaluatedMovieIds, // Adicionando filtro para excluir filmes já avaliados
+      };
+
       if (req.query.genres) {
         filters.genres = (req.query.genres as string).split(",");
       }
@@ -81,24 +99,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if we need to fetch from TMDB or use local storage
-      let movies = await storage.getMovies({ limit, offset, filters });
+      let movies = await storage.getMovies({
+        limit: limit * 3,
+        offset,
+        filters,
+      });
 
-      // If no movies in storage, fetch from TMDB
-      if (movies.length === 0) {
-        const tmdbMovies = await discoverMovies(page);
+      // Se temos poucos filmes após aplicar filtros, buscar mais da API externa
+      if (movies.length < limit) {
+        // Buscar filmes de várias páginas para garantir quantidade suficiente
+        const fetchPages = 3; // Buscar de múltiplas páginas
 
-        // Save to storage
-        for (const movie of tmdbMovies) {
-          await storage.createMovie({
-            ...movie,
-            genres: movie.genres as unknown as JSON,
-            streaming_services: movie.streaming_services as unknown as JSON,
-          });
+        for (let p = page; p < page + fetchPages; p++) {
+          const tmdbMovies = await discoverMovies(p);
+
+          // Save to storage
+          for (const movie of tmdbMovies) {
+            await storage.createMovie({
+              ...movie,
+              genres: movie.genres as unknown as JSON,
+              streaming_services: movie.streaming_services as unknown as JSON,
+            });
+          }
         }
 
         // Retrieve with filters
-        movies = await storage.getMovies({ limit, offset, filters });
+        movies = await storage.getMovies({ limit: limit * 3, offset, filters });
       }
+
+      // Limitar ao máximo pedido pelo cliente
+      movies = movies.slice(0, limit);
 
       res.json({
         movies,
@@ -406,7 +436,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // Resetar contador de filmes visualizados diários
+  router.post(
+    "/users/:id/reset-daily-stats",
+    async (req: Request, res: Response) => {
+      try {
+        const userId = parseInt(req.params.id);
+
+        // Temporariamente armazena o contador de "moviesViewed" em 0
+        // Usando uma abordagem temporária para demonstração
+        // Em uma implementação real, isso seria armazenado em um banco de dados
+        // com um campo específico para estatísticas diárias
+        const dailyStats = {
+          moviesViewed: 0,
+          lastReset: new Date(),
+        };
+
+        res.json({
+          success: true,
+          message: "Estatísticas diárias resetadas com sucesso",
+          stats: dailyStats,
+        });
+      } catch (error: any) {
+        res.status(500).json({ message: error.message });
+      }
+    }
+  );
+
   app.use("/api", router);
+
   const httpServer = createServer(app);
 
   return httpServer;
