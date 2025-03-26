@@ -94,6 +94,13 @@ const SwipeCardStack = ({
     try {
       await likeMovie(movies[currentIndex].id);
 
+      // Show success toast with movie title
+      toast({
+        title: "Added to Favorites",
+        description: `${movies[currentIndex].title} has been added to your favorites!`,
+        variant: "default",
+      });
+
       setTimeout(() => {
         setDirection(null);
         setCurrentIndex((prev) => prev + 1);

@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, X, Info, Play, Tv, Film, Video } from "lucide-react";
 import type { Movie } from "@/types";
+import LikeConfetti from "./LikeConfetti";
 
 interface MovieCardProps {
   movie: Movie;
@@ -29,6 +30,8 @@ const MovieCard = ({ movie, onLike, onDislike, onInfo }: MovieCardProps) => {
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isLikeButtonAnimating, setIsLikeButtonAnimating] = useState(false);
 
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +78,22 @@ const MovieCard = ({ movie, onLike, onDislike, onInfo }: MovieCardProps) => {
   const getReleaseYear = (dateString: string) => {
     return dateString ? new Date(dateString).getFullYear() : "";
   };
+
+  const handleLikeClick = useCallback(() => {
+    // Trigger button animation
+    setIsLikeButtonAnimating(true);
+
+    // Show confetti effect
+    setShowConfetti(true);
+
+    // Call the original onLike function
+    onLike();
+
+    // Reset button animation after a short delay
+    setTimeout(() => {
+      setIsLikeButtonAnimating(false);
+    }, 500);
+  }, [onLike]);
 
   // Calculate rotation based on drag distance
   const rotation = offset.x * 0.1;
@@ -146,7 +165,9 @@ const MovieCard = ({ movie, onLike, onDislike, onInfo }: MovieCardProps) => {
             )}
           </div>
 
-          <h3 className="text-2xl font-poppins font-bold mb-2">{movie.title}</h3>
+          <h3 className="text-2xl font-poppins font-bold mb-2">
+            {movie.title}
+          </h3>
           <p className="text-base text-[#EAEAEA]/70 line-clamp-3 mb-3">
             {movie.overview}
           </p>
@@ -159,7 +180,9 @@ const MovieCard = ({ movie, onLike, onDislike, onInfo }: MovieCardProps) => {
               </span>
             )}
             <span className="text-[#EAEAEA]/50 text-lg">•</span>
-            <span className="text-sm text-[#EAEAEA]/80 bg-[#1E293B]/60 px-3 py-1.5 rounded-full backdrop-blur-sm">{movie.runtime} min</span>
+            <span className="text-sm text-[#EAEAEA]/80 bg-[#1E293B]/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
+              {movie.runtime} min
+            </span>
           </div>
 
           {/* Action buttons */}
@@ -178,12 +201,47 @@ const MovieCard = ({ movie, onLike, onDislike, onInfo }: MovieCardProps) => {
                 <Info size={20} />
               </button>
             )}
-            <button
-              className="h-14 w-14 rounded-full bg-[#1E293B]/80 border border-[#EAEAEA]/20 flex items-center justify-center text-xl hover:bg-green-500/20 hover:border-green-500 hover:text-green-500 transition-colors backdrop-blur-sm"
-              onClick={onLike}
+            <motion.button
+              className={`h-14 w-14 rounded-full bg-[#1E293B]/80 border border-[#EAEAEA]/20 flex items-center justify-center text-xl ${
+                isLikeButtonAnimating
+                  ? "bg-green-500/20 border-green-500 text-green-500"
+                  : "hover:bg-green-500/20 hover:border-green-500 hover:text-green-500"
+              } transition-colors backdrop-blur-sm relative overflow-hidden`}
+              onClick={handleLikeClick}
+              whileTap={{ scale: 0.9 }}
+              animate={
+                isLikeButtonAnimating
+                  ? {
+                      scale: [1, 1.2, 1],
+                      transition: { duration: 0.4 },
+                    }
+                  : {}
+              }
             >
-              <Heart size={24} />
-            </button>
+              <Heart
+                size={24}
+                className={isLikeButtonAnimating ? "fill-green-500" : ""}
+              />
+
+              {/* Ripple effect */}
+              <AnimatePresence>
+                {isLikeButtonAnimating && (
+                  <motion.span
+                    className="absolute inset-0 bg-green-500 rounded-full"
+                    initial={{ scale: 0, opacity: 0.7 }}
+                    animate={{ scale: 1.5, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  />
+                )}
+              </AnimatePresence>
+            </motion.button>
+
+            {/* Confetti effect */}
+            <LikeConfetti
+              isVisible={showConfetti}
+              onComplete={() => setShowConfetti(false)}
+            />
           </div>
         </div>
 

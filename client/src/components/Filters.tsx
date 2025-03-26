@@ -1,19 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronDown,
-  ChevronUp,
-  Play,
-  Video,
-  Film,
-  Tv,
-  Heart,
-  Zap,
-  Brain,
-  Coffee,
-  Music,
-} from "lucide-react";
-import { filterAnimation, scaleIn } from "@/lib/motion";
+import { ChevronDown, ChevronUp, Film, Tv, Heart } from "lucide-react";
+import { MoodIcons } from "@/assets/mood-icons";
+import { StreamingIcons } from "@/assets/streaming-icons";
+import { filterAnimation, filterContentAnimation, scaleIn } from "@/lib/motion";
 import {
   type MovieGenre,
   type MovieMood,
@@ -66,6 +56,18 @@ const Filters = ({
   onReset,
 }: FiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const filterContainerRef = useRef<HTMLDivElement>(null);
+
+  // Use this to prevent the initial animation when the component mounts
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Initialize component
+  useEffect(() => {
+    // Mark as initialized after first render
+    if (!hasInitialized) {
+      setHasInitialized(true);
+    }
+  }, []);
 
   const toggleFilter = (
     current: string[],
@@ -87,7 +89,10 @@ const Filters = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-1.5 text-[#EAEAEA] text-sm px-3 py-1.5 rounded-lg bg-[#675AFE]/20 hover:bg-[#675AFE]/30 transition-all duration-200"
+          transition={{
+            scale: { duration: 0.2 },
+          }}
+          className="flex items-center gap-1.5 text-[#EAEAEA] text-sm px-3 py-1.5 rounded-lg bg-[#675AFE]/20 hover:bg-[#675AFE]/30 transition-colors duration-200"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -95,161 +100,173 @@ const Filters = ({
         </motion.button>
       </div>
 
-      <AnimatePresence>
+      {/* Preload the filter content in a hidden div to prevent layout shifts */}
+      <div className="hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Preload content structure */}
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
         {isOpen && (
           <motion.div
+            ref={filterContainerRef}
             key="filters"
-            initial="initial"
+            initial={hasInitialized ? "initial" : { opacity: 0 }}
             animate="animate"
             exit="exit"
             variants={filterAnimation}
             className="bg-gradient-to-br from-[#1E293B] to-[#1E293B]/80 rounded-xl p-6 mb-6 overflow-hidden shadow-lg border border-[#675AFE]/10"
+            style={{
+              transformOrigin: "top center",
+              willChange: "transform, opacity",
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              perspective: 1000,
+            }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Mood Filter */}
-              <div>
-                <h3 className="text-sm font-poppins font-medium mb-2 flex items-center gap-1">
-                  <Heart className="w-4 h-4 text-pink-400" />
-                  <span>Mood</span>
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {moods.map((mood) => {
-                    const getMoodIcon = () => {
-                      switch (mood) {
-                        case "Relaxing":
-                          return <Coffee className="w-3 h-3 text-teal-400" />;
-                        case "Exciting":
-                          return <Zap className="w-3 h-3 text-yellow-400" />;
-                        case "Thoughtful":
-                          return <Brain className="w-3 h-3 text-indigo-400" />;
-                        case "Uplifting":
-                          return <Music className="w-3 h-3 text-pink-400" />;
-                        case "Intense":
-                          return <Film className="w-3 h-3 text-red-400" />;
-                        default:
-                          return null;
-                      }
-                    };
+            <motion.div
+              variants={filterContentAnimation}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Mood Filter */}
+                <div>
+                  <h3 className="text-sm font-poppins font-medium mb-3 flex items-center gap-1.5">
+                    <Heart className="w-4 h-4 text-pink-400" />
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-pink-600">
+                      Mood
+                    </span>
+                  </h3>
+                  <div className="flex flex-wrap gap-2.5">
+                    {moods.map((mood) => {
+                      const MoodIcon =
+                        MoodIcons[mood as keyof typeof MoodIcons];
 
-                    return (
+                      return (
+                        <motion.button
+                          key={mood}
+                          variants={scaleIn}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{
+                            scale: { duration: 0.2 },
+                          }}
+                          className={`px-3.5 py-2 text-xs rounded-full ${
+                            selectedMoods.includes(mood)
+                              ? "bg-gradient-to-r from-[#675AFE] to-[#8A7BFF] text-white shadow-lg ring-2 ring-[#675AFE]/20"
+                              : "bg-[#1E293B]/80 text-[#EAEAEA] hover:bg-[#1E293B] border border-[#675AFE]/30 backdrop-blur-sm"
+                          } transition-colors duration-200 flex items-center gap-2`}
+                          onClick={() =>
+                            toggleFilter(selectedMoods, mood, onMoodChange)
+                          }
+                        >
+                          <div className="w-4 h-4 flex items-center justify-center">
+                            <MoodIcon />
+                          </div>
+                          <span className="font-medium">{mood}</span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Genre Filter */}
+                <div>
+                  <h3 className="text-sm font-poppins font-medium mb-3 flex items-center gap-1.5">
+                    <Film className="w-4 h-4 text-blue-400" />
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+                      Genre
+                    </span>
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {genres.map((genre) => (
                       <motion.button
-                        key={mood}
+                        key={genre}
                         variants={scaleIn}
-                        initial="initial"
-                        animate="animate"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className={`px-3 py-1.5 text-xs rounded-full ${
-                          selectedMoods.includes(mood)
-                            ? "bg-gradient-to-r from-[#675AFE] to-[#8A7BFF] text-white shadow-md"
-                            : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]/30 backdrop-blur-sm"
-                        } transition-all duration-200 flex items-center gap-1.5`}
+                        transition={{
+                          scale: { duration: 0.2 },
+                        }}
+                        className={`px-3.5 py-2 text-xs rounded-full ${
+                          selectedGenres.includes(genre)
+                            ? "bg-gradient-to-r from-[#675AFE] to-[#8A7BFF] text-white shadow-lg ring-2 ring-[#675AFE]/20"
+                            : "bg-[#1E293B]/80 text-[#EAEAEA] hover:bg-[#1E293B] border border-[#675AFE]/30 backdrop-blur-sm"
+                        } transition-colors duration-200 font-medium`}
                         onClick={() =>
-                          toggleFilter(selectedMoods, mood, onMoodChange)
+                          toggleFilter(selectedGenres, genre, onGenreChange)
                         }
                       >
-                        {getMoodIcon()}
-                        <span>{mood}</span>
+                        {genre}
                       </motion.button>
-                    );
-                  })}
+                    ))}
+                  </div>
+                </div>
+
+                {/* Streaming Filter */}
+                <div>
+                  <h3 className="text-sm font-poppins font-medium mb-3 flex items-center gap-1.5">
+                    <Tv className="w-4 h-4 text-green-400" />
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600">
+                      Streaming On
+                    </span>
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {streamingServices.map((service) => {
+                      const ServiceIcon =
+                        StreamingIcons[service as keyof typeof StreamingIcons];
+
+                      return (
+                        <motion.button
+                          key={service}
+                          variants={scaleIn}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{
+                            scale: { duration: 0.2 },
+                          }}
+                          className={`px-3.5 py-2 text-xs rounded-full ${
+                            selectedServices.includes(service)
+                              ? "bg-gradient-to-r from-[#675AFE] to-[#8A7BFF] text-white shadow-lg ring-2 ring-[#675AFE]/20"
+                              : "bg-[#1E293B]/80 text-[#EAEAEA] hover:bg-[#1E293B] border border-[#675AFE]/30 backdrop-blur-sm"
+                          } transition-colors duration-200 flex items-center gap-2`}
+                          onClick={() =>
+                            toggleFilter(
+                              selectedServices,
+                              service,
+                              onServiceChange
+                            )
+                          }
+                        >
+                          <div className="w-4 h-4 flex items-center justify-center">
+                            <ServiceIcon />
+                          </div>
+                          <span className="font-medium">{service}</span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
-              {/* Genre Filter */}
-              <div>
-                <h3 className="text-sm font-poppins font-medium mb-2 flex items-center gap-1">
-                  <Film className="w-4 h-4 text-blue-400" />
-                  <span>Genre</span>
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {genres.map((genre) => (
-                    <motion.button
-                      key={genre}
-                      variants={scaleIn}
-                      initial="initial"
-                      animate="animate"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`px-3 py-1.5 text-xs rounded-full ${
-                        selectedGenres.includes(genre)
-                          ? "bg-gradient-to-r from-[#675AFE] to-[#8A7BFF] text-white shadow-md"
-                          : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]/30 backdrop-blur-sm"
-                      } transition-all duration-200`}
-                      onClick={() =>
-                        toggleFilter(selectedGenres, genre, onGenreChange)
-                      }
-                    >
-                      {genre}
-                    </motion.button>
-                  ))}
-                </div>
+              <div className="mt-6 flex justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{
+                    scale: { duration: 0.2 },
+                  }}
+                  className="text-sm font-poppins font-medium text-[#FFCC00] hover:text-[#FFCC00]/80 transition-colors duration-200 px-4 py-2.5 rounded-lg bg-[#1E293B]/70 hover:bg-[#1E293B] border border-[#FFCC00]/20 hover:border-[#FFCC00]/40 flex items-center gap-2 shadow-lg"
+                  onClick={onReset}
+                >
+                  <ChevronDown size={14} className="text-[#FFCC00]" />
+                  Reset Filters
+                </motion.button>
               </div>
-
-              {/* Streaming Filter */}
-              <div>
-                <h3 className="text-sm font-poppins font-medium mb-2 flex items-center gap-1">
-                  <Tv className="w-4 h-4 text-green-400" />
-                  <span>Streaming On</span>
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {streamingServices.map((service) => {
-                    const getIcon = () => {
-                      switch (service) {
-                        case "Netflix":
-                          return <Play className="w-3 h-3 text-red-600" />;
-                        case "Prime":
-                          return <Video className="w-3 h-3 text-blue-400" />;
-                        case "Disney+":
-                          return <Film className="w-3 h-3 text-blue-500" />;
-                        case "Hulu":
-                          return <Tv className="w-3 h-3 text-green-400" />;
-                        default:
-                          return null;
-                      }
-                    };
-
-                    return (
-                      <motion.button
-                        key={service}
-                        variants={scaleIn}
-                        initial="initial"
-                        animate="animate"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`px-3 py-1.5 text-xs rounded-full ${
-                          selectedServices.includes(service)
-                            ? "bg-gradient-to-r from-[#675AFE] to-[#8A7BFF] text-white shadow-md"
-                            : "bg-[#675AFE]/20 text-[#EAEAEA] hover:bg-[#675AFE]/30 backdrop-blur-sm"
-                        } transition-all duration-200 flex items-center gap-1.5`}
-                        onClick={() =>
-                          toggleFilter(
-                            selectedServices,
-                            service,
-                            onServiceChange
-                          )
-                        }
-                      >
-                        {getIcon()}
-                        <span>{service}</span>
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-sm font-poppins font-medium text-[#FFCC00] hover:text-[#FFCC00]/80 transition-all duration-200 px-4 py-2 rounded-lg bg-[#1E293B]/50 hover:bg-[#1E293B]/70 border border-[#FFCC00]/20 flex items-center gap-1.5"
-                onClick={onReset}
-              >
-                <ChevronDown size={14} className="text-[#FFCC00]" />
-                Reset Filters
-              </motion.button>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

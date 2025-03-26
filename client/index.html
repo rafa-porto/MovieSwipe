@@ -1,15 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NOVO - Movie Discovery</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOVO - Movie Discovery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Initial loading animation styles */
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #121826;
+      }
+
+      #app-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        background-color: #121826;
+        transition: opacity 0.5s ease-out;
+      }
+
+      #app-loader.loaded {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loader-logo {
+        font-family: "Poppins", sans-serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+        color: #ffcc00;
+        margin-bottom: 1rem;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+
+      .loader-bar {
+        width: 120px;
+        height: 4px;
+        background-color: #1e293b;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+      }
+
+      .loader-progress {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #675afe 0%, #8a7bff 100%);
+        animation: loading 2s ease-in-out infinite;
+      }
+
+      .loader-text {
+        font-family: "Inter", sans-serif;
+        font-size: 0.75rem;
+        color: rgba(234, 234, 234, 0.6);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes loading {
+        0% {
+          width: 0%;
+        }
+        50% {
+          width: 100%;
+        }
+        100% {
+          width: 0%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Initial loader that shows before React loads -->
+    <div id="app-loader">
+      <div class="loader-logo">NOVO</div>
+      <div class="loader-bar">
+        <div class="loader-progress"></div>
+      </div>
+      <div class="loader-text">MOVIE DISCOVERY</div>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Hide loader when app is loaded
+      window.addEventListener("load", function () {
+        // We'll let React handle the loader removal
+        // This is just a fallback in case the React app fails to load
+        setTimeout(function () {
+          const loader = document.getElementById("app-loader");
+          if (loader && !loader.classList.contains("loaded")) {
+            loader.classList.add("loaded");
+          }
+        }, 3000);
+      });
+    </script>
+  </body>
 </html>
